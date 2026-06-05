@@ -19,7 +19,6 @@
             box-sizing: border-box;
         }
         
-        /* Master Template Header Configuration */
         header { margin-bottom: 40px; border-bottom: 2px solid var(--text); padding-bottom: 20px; }
         .header-top { display: flex; justify-content: space-between; align-items: baseline; }
         .title { font-size: 20px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; }
@@ -31,7 +30,7 @@
         }
         .mode-toggle:hover { background: var(--text); color: var(--bg); }
         
-        /* 12x12 Architectural Structural Grid (Fitted inside the frame) */
+        /* 12x12 Architectural Structural Grid Layout */
         #grid-matrix { 
             display: grid; grid-template-columns: repeat(12, 1fr); auto-rows: 140px; 
             gap: 15px; width: 100%; margin-bottom: 60px;
@@ -45,17 +44,14 @@
         }
         .block:hover { border-color: var(--accent); transform: scale(1.01); }
         
-        /* Image Asset and Prism Distortion Filters */
         .asset-img { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             object-fit: cover; opacity: 0.85; transition: opacity 0.3s, filter 0.3s; 
         }
         .block:hover .asset-img { opacity: 1; filter: invert(1) contrast(1.2); }
         
-        /* Generative Text Canvas Layer */
         .generative-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
         
-        /* Metadata String Output */
         .identity-label { 
             position: relative; font-size: 10px; font-weight: bold; 
             letter-spacing: 0.05em; background: var(--bg); color: var(--text);
@@ -64,13 +60,11 @@
             border: 1px solid var(--text); z-index: 5;
         }
 
-        /* Persistent Memory Ledger */
         #ledger-container {
             font-family: monospace; font-size: 10px; color: var(--accent);
             line-height: 1.5; margin-bottom: 20px; display: flex; flex-direction: column;
         }
 
-        /* System Audio Activation Overlay (Contained within frame) */
         #audio-prompt {
             border: 1px dashed var(--text); padding: 20px; margin-bottom: 25px;
             color: var(--text); display: flex; justify-content: center; 
@@ -78,7 +72,6 @@
             font-weight: bold; cursor: pointer; text-transform: uppercase;
         }
 
-        /* Single Floating Circle Module */
         #orbital-lens { 
             position: fixed; width: 30px; height: 30px; background: var(--text); 
             border-radius: 50%; pointer-events: none; z-index: 100; 
@@ -86,7 +79,6 @@
             mix-blend-mode: difference; 
         }
 
-        /* Master Template Footer Configuration */
         footer { 
             position: absolute; bottom: 0; left: 0; width: 100%;
             border-top: 1px solid var(--border); padding-top: 20px;
@@ -94,7 +86,7 @@
         }
     </style>
 </head>
-<body class="dark-mode"> <!-- Defaults to dark mode initialization -->
+<body class="dark-mode">
 
     <header>
         <div class="header-top">
@@ -122,7 +114,6 @@
         let mainGain = null;
         let humanTrajectory = [];
 
-        // Track mouse coordinates for tracking circles and sound mapping
         window.addEventListener('mousemove', (e) => {
             lens.style.left = e.clientX + 'px';
             lens.style.top = e.clientY + 'px';
@@ -131,7 +122,7 @@
                 const freq = 60 + (e.clientY / window.innerHeight) * 180;
                 mainOsc.frequency.setTargetAtTime(freq, audioCtx.currentTime, 0.05);
                 const volume = 0.01 + (e.clientX / window.innerWidth) * 0.03;
-                mainGain.gain.setTargetAtTime(volume, audioCtx.currentTime, 0.05);
+                mainGain.gain.setValueAtTime(volume, audioCtx.currentTime);
             }
         });
 
@@ -155,7 +146,6 @@
         }
 
         async function loadRepository() {
-            // Inherits the same data file directly from your system environment
             const response = await fetch('data.vcs');
             const csvText = await response.text();
             const lines = csvText.trim().split('\n').slice(1);
@@ -172,7 +162,6 @@
                 };
             });
 
-            // Clean multi-column structural grid allocations
             const layouts = [
                 {col: "span 4", row: "span 2"}, {col: "span 5", row: "span 3"},
                 {col: "span 3", row: "span 2"}, {col: "span 5", row: "span 2"},
@@ -184,13 +173,36 @@
 
             matrixContainer.innerHTML = database.slice(0, 12).map((item, idx) => {
                 const layout = layouts[idx % layouts.length];
+                
+                const rawType = item.mode.toLowerCase().trim();
+                let fileCategory = 'plus'; 
+
+                // UNIFIED TAXONOMY ENGINE WITH EXPLICIT "+" DETECTION
+                if (rawType === '+' || rawType === 'plus') {
+                    fileCategory = 'plus';
+                } else if (['solo', 'group', 'screening', 'performance', 'other'].includes(rawType)) {
+                    fileCategory = 'shows';
+                } else if (['press', 'publication', 'publications', 'editorial', 'essay', 'writing'].includes(rawType)) {
+                    fileCategory = 'writing';
+                } else if (['film', 'video', '16 mm', 'sound', 'multi', 'digital video', '4k'].includes(rawType)) {
+                    fileCategory = 'time-based_media';
+                } else if (rawType.includes('collect')) {
+                    fileCategory = 'collection';
+                } else if (rawType.includes('founding')) {
+                    fileCategory = 'founding';
+                } else if (rawType === 'code') {
+                    fileCategory = 'code';
+                }
+
                 const cleanTitle = item.entry.replace(/[^a-zA-Z0-9]/g, "-");
-                const identityString = `${item.year}_${item.mode.toUpperCase()}_${cleanTitle}`;
-                const imagePath = `images/${item.year}_${item.mode.toLowerCase()}.jpg`;
+                const identityString = `${item.year}_${fileCategory.toUpperCase()}_${cleanTitle}`;
+                
+                // Maps file names safely to alphabetical characters (e.g., 2026_plus.jpg)
+                const imagePath = `images/${item.year}_${fileCategory}.jpg`;
 
                 return `
                     <div class="block" style="grid-column: ${layout.col}; grid-row: ${layout.row};" 
-                         data-mode="${item.mode.toLowerCase()}" data-text="${item.entry}" onclick="mutateSystem(this)">
+                         data-mode="${fileCategory}" data-text="${item.entry}" onclick="mutateSystem(this)">
                         <canvas class="generative-canvas"></canvas>
                         <img src="${imagePath}" class="asset-img" onerror="this.style.display='none';">
                         <div class="identity-label">${identityString}</div>
@@ -228,12 +240,15 @@
                 const label = block.querySelector('.identity-label').innerText;
 
                 block.addEventListener('mouseenter', () => {
-                    if (['film', 'video', 'screening', 'sound'].includes(mode)) {
+                    if (mode === 'time-based_media') {
                         lens.style.width = '70px'; lens.style.height = '70px';
                         if(mainOsc) mainOsc.type = 'sawtooth';
                     } else if (mode === 'code') {
                         lens.style.width = '12px'; lens.style.height = '12px';
                         if(mainOsc) mainOsc.type = 'triangle';
+                    } else if (mode === 'plus') {
+                        lens.style.width = '55px'; lens.style.height = '55px';
+                        if(mainOsc) mainOsc.type = 'square'; // Plus acts as a unique square wave signal
                     } else {
                         lens.style.width = '45px'; lens.style.height = '45px';
                         if(mainOsc) mainOsc.type = 'sine';
@@ -273,7 +288,6 @@
             }
         }
 
-        // Exact dual-mode name-shifting logic from your footprint design
         function toggleMode() { 
             document.body.classList.toggle('dark-mode');
             const titleElement = document.getElementById('main-name');
@@ -285,7 +299,6 @@
             logTrack('SYSTEM', 'VISUAL INVERSION TRIGGERED');
         }
 
-        // Auto-run system sequence if user interactions have already been authorized
         if (location.hash === '#active') activateSystem();
     </script>
 
