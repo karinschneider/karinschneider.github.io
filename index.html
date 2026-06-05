@@ -3,130 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K.ARIN SCHNEIDER // TEST</title>
+    <title>KARIN SCHNEIDER // THE IMAGE MACHINE</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background-color: #000; color: #fff; font-family: monospace; overflow: hidden; height: 100vh; position: relative; }
+        :root { --bg: #ffffff; --text: #000000; --accent: #666666; --border: #dddddd; }
+        body.dark-mode { --bg: #000000; --text: #ffffff; --accent: #999999; --border: #333333; }
         
-        /* The Ledger Stream */
-        #ledger { position: absolute; top: 20px; left: 20px; width: 320px; font-size: 10px; line-height: 1.4; color: #666; z-index: 10; pointer-events: none; }
-        .log-human { color: #aaa; }
-        .log-ai { color: #555; }
+        body { 
+            background-color: var(--bg); color: var(--text); 
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; 
+            margin: 0; padding: 0; overflow: hidden; height: 100vh; position: relative;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        
+        /* Interactive Structural Matrix Grid */
+        #grid-matrix { 
+            display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: repeat(12, 1fr); 
+            width: 100vw; height: 100vh; padding: 20px; gap: 15px; 
+        }
+        
+        .block { 
+            border: 2px solid var(--text); position: relative; 
+            display: flex; flex-direction: column; justify-content: flex-end; 
+            padding: 15px; cursor: pointer; overflow: hidden; background: var(--bg);
+            transition: border-color 0.2s;
+        }
+        .block:hover { border-color: var(--accent); }
+        
+        /* The Actual Visual Assets Mapping into the Vault */
+        .asset-img { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            object-fit: cover; opacity: 0.85; transition: opacity 0.2s; 
+        }
+        .block:hover .asset-img { opacity: 1; }
+        
+        /* String Label Output: YEAR_MODE_SUBCATEGORY_TITLE_LOCATION */
+        .identity-label { 
+            position: relative; font-size: 11px; font-weight: bold; 
+            letter-spacing: -0.01em; background: var(--bg); color: var(--text);
+            padding: 4px 8px; display: inline-block; max-width: 100%;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            opacity: 0; transition: opacity 0.2s; border: 1px solid var(--text);
+        }
+        .block:hover .identity-label { opacity: 1; }
 
-        /* The Interlocking Grid Matrix */
-        #grid-container { display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: repeat(12, 1fr); width: 100vw; height: 100vh; padding: 10px; gap: 10px; }
-        .block { background: #111; border: 2px solid #000; position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; transition: background 0.3s, border-color 0.3s; overflow: hidden; }
-        .block:hover { border-color: #333; }
-        
-        /* Simulated Image Fill */
-        .image-placeholder { width: 90%; height: 80%; background: #222; display: flex; justify-content: center; align-items: center; color: #444; font-size: 11px; transition: background 0.2s; }
-        .block:hover .image-placeholder { background: #2a2a2a; color: #fff; }
-        
-        /* Rigid Asset Label String */
-        .asset-string { position: absolute; bottom: 8px; left: 10px; font-size: 10px; color: #555; opacity: 0; transition: opacity 0.2s; white-space: nowrap; }
-        .block.revealed .asset-string { opacity: 1; color: #fff; }
+        /* Ledger Tracks */
+        #ledger { position: absolute; top: 30px; left: 30px; font-family: monospace; font-size: 10px; color: var(--accent); pointer-events: none; z-index: 10; line-height: 1.5; }
 
-        /* The Single Floating Circle Orbiter */
-        #floating-circle { position: fixed; width: 40px; height: 40px; background: #fff; border-radius: 50%; pointer-events: none; z-index: 100; transform: translate(-50%, -50%); transition: width 0.2s, height 0.2s, background 0.2s; mix-blend-mode: difference; }
+        /* Single Floating Circle Module */
+        #orbital-lens { 
+            position: fixed; width: 40px; height: 40px; background: var(--text); 
+            border-radius: 50%; pointer-events: none; z-index: 100; 
+            transform: translate(-50%, -50%); transition: width 0.2s, height 0.2s; 
+            mix-blend-mode: difference; 
+        }
     </style>
 </head>
-<body>
-
-    <div id="ledger">
-        [SYSTEM_LOG // INITIALIZED]<br>
-        READY FOR HUMAN OR AI TRAFFIC...
-    </div>
-
-    <div id="grid-container">
-        <!-- 10 interlocking layout boxes mapping to your sketch -->
-        <div class="block" style="grid-column: span 3; grid-row: span 4;" data-identity="2011_F(-)P_Andrew Roth Gallery">
-            <div class="image-placeholder">[IMAGE_ASSET]</div><div class="asset-string"></div>
-        </div>
-        <div class="block" style="grid-column: span 5; grid-row: span 5;" data-identity="2026_Folding_Muzeum Sztuki">
-            <div class="image-placeholder">[IMAGE_ASSET]</div><div class="asset-string"></div>
-        </div>
-        <div class="block" style="grid-column: span 4; grid-row: span 6;" data-identity="2025_MAR 01_Casarao">
-            <div class="image-placeholder">[IMAGE_ASSET]</div><div class="asset-string"></div>
-        </div>
-        <div class="block" style="grid-column: span 3; grid-row: span 5;" data-identity="2024_Repara ai mana!_Casa das Onze Janelas">
-            <div class="image-placeholder">[IMAGE_ASSET]</div><div class="asset-string"></div>
-        </div>
-        <div class="block" style="grid-column: span 5; grid-row: span 4;" data-identity="2023_The Night of Torch_Louvre Museum">
-            <div class="image-placeholder">[IMAGE_ASSET]</div><div class="asset-string"></div>
-        </div>
-        <div class="block" style="grid-column: span 4; grid-row: span 6;" data-identity="2023_Speaking Boxes_SIMIAN">
-            <div class="image-placeholder">[IMAGE_ASSET]</div><div class="asset-string"></div>
-        </div>
-        <div class="block" style="grid-column: span 4; grid-row: span 3;" data-identity="2022_Sembrando el Petroleo_ISLAA">
-            <div class="image-placeholder">[IMAGE_ASSET]</div><div class="asset-string"></div>
-        </div>
-        <div class="block" style="grid-column: span 4; grid-row: span 3;" data-identity="2020_Dirty Mirror_Metro Pictures">
-            <div class="image-placeholder">[IMAGE_ASSET]</div><div class="asset-string"></div>
-        </div>
-    </div>
-
-    <div id="floating-circle"></div>
+<body class="dark-mode"> <div id="ledger">[SYSTEM INITIALIZED] // REPOSITORY DATA ACTIVE</div>
+    <div id="grid-matrix"></div>
+    <div id="orbital-lens"></div>
 
     <script>
-        const circle = document.getElementById('floating-circle');
+        const matrixContainer = document.getElementById('grid-matrix');
+        const lens = document.getElementById('orbital-lens');
         const ledger = document.getElementById('ledger');
-        const blocks = document.querySelectorAll('.block');
-        
-        // Track mouse to make the single circle float seamlessly
+
+        // Capture Mouse Movements for the Floating Circle
         window.addEventListener('mousemove', (e) => {
-            circle.style.left = e.clientX + 'px';
-            circle.style.top = e.clientY + 'px';
+            lens.style.left = e.clientX + 'px';
+            lens.style.top = e.clientY + 'px';
         });
 
-        // Human interaction: Hover reveals string and logs interaction
-        blocks.forEach(block => {
-            const stringDiv = block.querySelector('.asset-string');
-            const dataText = block.getAttribute('data-identity');
-            stringDiv.textContent = dataText;
+        async function loadRepository() {
+            // Read directly from your existing data footprint source
+            const response = await fetch('data.vcs');
+            const csvText = await response.text();
+            const lines = csvText.trim().split('\n').slice(1);
 
-            block.addEventListener('mouseenter', () => {
-                block.classList.add('revealed');
-                circle.style.width = '60px';
-                circle.style.height = '60px';
-                logInteraction('HUMAN_FOCUS', `LENS OVER: ${dataText.split('_')[1]}`);
+            const database = lines.map(line => {
+                const cols = line.split(',');
+                return {
+                    year: (cols[0] || "").trim(),
+                    mode: (cols[1] || "").trim(),
+                    entry: (cols[2] || "").trim(),
+                    context: (cols[3] || "").trim(),
+                    venue: (cols[4] || "").trim(),
+                    location: (cols[5] || "").trim()
+                };
             });
 
-            block.addEventListener('mouseleave', () => {
-                block.classList.remove('revealed');
-                circle.style.width = '40px';
-                circle.style.height = '40px';
-            });
+            // Map and spawn the layout blocks using asymmetrical grid spans
+            const gridLayouts = [
+                {col: "span 4", row: "span 5"}, {col: "span 5", row: "span 4"},
+                {col: "span 3", row: "span 6"}, {col: "span 5", row: "span 5"},
+                {col: "span 4", row: "span 3"}, {col: "span 3", row: "span 4"},
+                {col: "span 4", row: "span 6"}, {col: "span 5", row: "span 3"}
+            ];
 
-            // Click triggers location reshuffling mutation simulation
-            block.addEventListener('click', () => {
-                shuffleGrid();
-                logInteraction('HUMAN_MUTATION', 'GRID COORDINATES SCRAMBLED');
-            });
-        });
+            matrixContainer.innerHTML = database.slice(0, 8).map((item, idx) => {
+                const layout = gridLayouts[idx % gridLayouts.length];
+                
+                // Formulate the definitive, clean string match variable
+                const cleanTitle = item.entry.replace(/[^a-zA-Z0-9]/g, "-");
+                const cleanVenue = item.venue.replace(/[^a-zA-Z0-9]/g, "-");
+                const identityString = `${item.year}_${item.mode.toUpperCase()}_${cleanTitle}_${cleanVenue}`;
+                
+                // Points directly to images inside an images folder named after your titles
+                const imagePath = `images/${item.year}_${item.mode.toLowerCase()}.jpg`;
 
-        function shuffleGrid() {
-            const container = document.getElementById('grid-container');
-            for (let i = container.children.length; i >= 0; i--) {
-                container.appendChild(container.children[Math.random() * i | 0]);
+                return `
+                    <div class="block" style="grid-column: ${layout.col}; grid-row: ${layout.row};" onclick="mutateSystem()">
+                        <img src="${imagePath}" class="asset-img" onerror="this.style.display='none';">
+                        <div class="identity-label">${identityString}</div>
+                    </div>
+                `;
+            }).join('');
+
+            attachBlockInteractions();
+        }
+
+        function attachBlockInteractions() {
+            document.querySelectorAll('.block').forEach(block => {
+                block.addEventListener('mouseenter', () => {
+                    lens.style.width = '65px';
+                    lens.style.height = '65px';
+                    const stringText = block.querySelector('.identity-label').innerText;
+                    logTrack('HUMAN_FOCUS', `INDEX DATA READ: ${stringText}`);
+                });
+                block.addEventListener('mouseleave', () => {
+                    lens.style.width = '40px';
+                    lens.style.height = '40px';
+                });
+            });
+        }
+
+        function mutateSystem() {
+            // Scramble the visual constellation placements instantly upon clicking
+            for (let i = matrixContainer.children.length; i >= 0; i--) {
+                matrixContainer.appendChild(matrixContainer.children[Math.random() * i | 0]);
             }
+            logTrack('SYSTEM_MUTATION', 'COORDINATE CODES RE-ALIGNED');
         }
 
-        function logInteraction(type, detail) {
-            const now = new Date().toLocaleTimeString();
-            const newLog = document.createElement('div');
-            newLog.className = 'log-human';
-            newLog.innerHTML = `[${now}] // ${type} // ${detail}`;
-            ledger.insertBefore(newLog, ledger.firstChild);
+        function logTrack(agent, detail) {
+            const time = new Date().toLocaleTimeString();
+            ledger.innerHTML = `[${time}] // ${agent} // ${detail}`;
         }
 
-        // Simulate an AI web crawler interaction on launch to demonstrate difference
-        setTimeout(() => {
-            const now = new Date().toLocaleTimeString();
-            const aiLog = document.createElement('div');
-            aiLog.className = 'log-ai';
-            aiLog.innerHTML = `[${now}] // AI_CRAWL_DETECTED // BOT_SIGNATURE: GOOGLEBOT // ENCRYPTING MATRIX COORDINATES`;
-            ledger.insertBefore(aiLog, ledger.firstChild);
-        }, 2000);
+        // Simulate Background Crawler Traffic detection to flag interaction differences
+        setInterval(() => {
+            if(Math.random() > 0.7) {
+                const time = new Date().toLocaleTimeString();
+                ledger.innerHTML = `[${time}] // AI_CRAWL_DETECTED // INDEX_SCRAMBLE // COORDINATES ALTERED`;
+                mutateSystem();
+            }
+        }, 9000);
+
+        loadRepository();
     </script>
 </body>
 </html>
