@@ -30,7 +30,7 @@
         }
         .mode-toggle:hover { background: var(--text); color: var(--bg); }
         
-        /* 12x12 Architectural Structural Grid Layout */
+        /* Responsive 12-column grid that automatically wraps and grows with data */
         #grid-matrix { 
             display: grid; grid-template-columns: repeat(12, 1fr); auto-rows: 140px; 
             gap: 15px; width: 100%; margin-bottom: 60px;
@@ -43,12 +43,6 @@
             transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.3s;
         }
         .block:hover { border-color: var(--accent); transform: scale(1.01); }
-        
-        .asset-img { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            object-fit: cover; opacity: 0.85; transition: opacity 0.3s, filter 0.3s; 
-        }
-        .block:hover .asset-img { opacity: 1; filter: invert(1) contrast(1.2); }
         
         .generative-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
         
@@ -80,7 +74,7 @@
         }
 
         footer { 
-            position: absolute; bottom: 0; left: 0; width: 100%;
+            position: relative; width: 100%; margin-top: 60px;
             border-top: 1px solid var(--border); padding-top: 20px;
             font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: 1px;
         }
@@ -98,7 +92,7 @@
     <div id="audio-prompt" onclick="activateSystem()">[ Click to Initialize System Audio Engine ]</div>
     
     <div id="ledger-container">
-        <div>[SYSTEM INITIALIZED] // REPOSITORY DATA ACTIVE</div>
+        <div>[SYSTEM INITIALIZED] // UNIVERSAL DATA LEDGER RUNNING</div>
     </div>
     
     <div id="grid-matrix"></div>
@@ -162,6 +156,7 @@
                 };
             });
 
+            // Asymmetric layout proportions mapped to indexes endlessly
             const layouts = [
                 {col: "span 4", row: "span 2"}, {col: "span 5", row: "span 3"},
                 {col: "span 3", row: "span 2"}, {col: "span 5", row: "span 2"},
@@ -171,13 +166,13 @@
                 {col: "span 3", row: "span 2"}, {col: "span 3", row: "span 3"}
             ];
 
-            matrixContainer.innerHTML = database.slice(0, 12).map((item, idx) => {
+            // The ".slice(0, 12)" limitation is removed entirely. Every line parses now.
+            matrixContainer.innerHTML = database.map((item, idx) => {
                 const layout = layouts[idx % layouts.length];
                 
                 const rawType = item.mode.toLowerCase().trim();
                 let fileCategory = 'plus'; 
 
-                // UNIFIED TAXONOMY ENGINE WITH EXPLICIT "+" DETECTION
                 if (rawType === '+' || rawType === 'plus') {
                     fileCategory = 'plus';
                 } else if (['solo', 'group', 'screening', 'performance', 'other'].includes(rawType)) {
@@ -196,15 +191,11 @@
 
                 const cleanTitle = item.entry.replace(/[^a-zA-Z0-9]/g, "-");
                 const identityString = `${item.year}_${fileCategory.toUpperCase()}_${cleanTitle}`;
-                
-                // Maps file names safely to alphabetical characters (e.g., 2026_plus.jpg)
-                const imagePath = `images/${item.year}_${fileCategory}.jpg`;
 
                 return `
                     <div class="block" style="grid-column: ${layout.col}; grid-row: ${layout.row};" 
                          data-mode="${fileCategory}" data-text="${item.entry}" onclick="mutateSystem(this)">
                         <canvas class="generative-canvas"></canvas>
-                        <img src="${imagePath}" class="asset-img" onerror="this.style.display='none';">
                         <div class="identity-label">${identityString}</div>
                     </div>
                 `;
@@ -248,7 +239,7 @@
                         if(mainOsc) mainOsc.type = 'triangle';
                     } else if (mode === 'plus') {
                         lens.style.width = '55px'; lens.style.height = '55px';
-                        if(mainOsc) mainOsc.type = 'square'; // Plus acts as a unique square wave signal
+                        if(mainOsc) mainOsc.type = 'square';
                     } else {
                         lens.style.width = '45px'; lens.style.height = '45px';
                         if(mainOsc) mainOsc.type = 'sine';
