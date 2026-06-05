@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KARIN SCHNEIDER // THE IMAGE MACHINE</title>
+    <title>Karin Schneider | System Index</title>
     <style>
         :root { --bg: #ffffff; --text: #000000; --accent: #666666; --border: #dddddd; }
         body.dark-mode { --bg: #000000; --text: #ffffff; --accent: #999999; --border: #333333; }
@@ -11,70 +11,151 @@
         body { 
             background-color: var(--bg); color: var(--text); 
             font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; 
-            margin: 0; padding: 0; overflow: hidden; height: 100vh; position: relative;
+            -webkit-font-smoothing: antialiased;
+            margin: 40px; padding-bottom: 60px;
+            font-size: 13px; line-height: 1.5; letter-spacing: -0.01em; 
             transition: background-color 0.2s, color 0.2s;
+            position: relative; min-height: calc(100vh - 80px);
+            box-sizing: border-box;
         }
         
-        /* Interactive Structural Matrix Grid */
+        /* Master Template Header Configuration */
+        header { margin-bottom: 40px; border-bottom: 2px solid var(--text); padding-bottom: 20px; }
+        .header-top { display: flex; justify-content: space-between; align-items: baseline; }
+        .title { font-size: 20px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; }
+        
+        .mode-toggle { 
+            border: 1px solid var(--text); background: none; padding: 4px 12px; 
+            cursor: pointer; font-size: 11px; text-transform: uppercase; 
+            font-weight: 500; color: var(--text); transition: all 0.2s;
+        }
+        .mode-toggle:hover { background: var(--text); color: var(--bg); }
+        
+        /* 12x12 Architectural Structural Grid (Fitted inside the frame) */
         #grid-matrix { 
-            display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: repeat(12, 1fr); 
-            width: 100vw; height: 100vh; padding: 20px; gap: 15px; 
+            display: grid; grid-template-columns: repeat(12, 1fr); auto-rows: 140px; 
+            gap: 15px; width: 100%; margin-bottom: 60px;
         }
         
         .block { 
-            border: 2px solid var(--text); position: relative; 
+            border: 1px solid var(--text); position: relative; 
             display: flex; flex-direction: column; justify-content: flex-end; 
             padding: 15px; cursor: pointer; overflow: hidden; background: var(--bg);
-            transition: border-color 0.2s;
+            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.3s;
         }
-        .block:hover { border-color: var(--accent); }
+        .block:hover { border-color: var(--accent); transform: scale(1.01); }
         
-        /* The Actual Visual Assets Mapping into the Vault */
+        /* Image Asset and Prism Distortion Filters */
         .asset-img { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            object-fit: cover; opacity: 0.85; transition: opacity 0.2s; 
+            object-fit: cover; opacity: 0.85; transition: opacity 0.3s, filter 0.3s; 
         }
-        .block:hover .asset-img { opacity: 1; }
+        .block:hover .asset-img { opacity: 1; filter: invert(1) contrast(1.2); }
         
-        /* String Label Output: YEAR_MODE_SUBCATEGORY_TITLE_LOCATION */
+        /* Generative Text Canvas Layer */
+        .generative-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        
+        /* Metadata String Output */
         .identity-label { 
-            position: relative; font-size: 11px; font-weight: bold; 
-            letter-spacing: -0.01em; background: var(--bg); color: var(--text);
+            position: relative; font-size: 10px; font-weight: bold; 
+            letter-spacing: 0.05em; background: var(--bg); color: var(--text);
             padding: 4px 8px; display: inline-block; max-width: 100%;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            opacity: 0; transition: opacity 0.2s; border: 1px solid var(--text);
+            border: 1px solid var(--text); z-index: 5;
         }
-        .block:hover .identity-label { opacity: 1; }
 
-        /* Ledger Tracks */
-        #ledger { position: absolute; top: 30px; left: 30px; font-family: monospace; font-size: 10px; color: var(--accent); pointer-events: none; z-index: 10; line-height: 1.5; }
+        /* Persistent Memory Ledger */
+        #ledger-container {
+            font-family: monospace; font-size: 10px; color: var(--accent);
+            line-height: 1.5; margin-bottom: 20px; display: flex; flex-direction: column;
+        }
+
+        /* System Audio Activation Overlay (Contained within frame) */
+        #audio-prompt {
+            border: 1px dashed var(--text); padding: 20px; margin-bottom: 25px;
+            color: var(--text); display: flex; justify-content: center; 
+            align-items: center; font-size: 12px; letter-spacing: 2px; 
+            font-weight: bold; cursor: pointer; text-transform: uppercase;
+        }
 
         /* Single Floating Circle Module */
         #orbital-lens { 
-            position: fixed; width: 40px; height: 40px; background: var(--text); 
+            position: fixed; width: 30px; height: 30px; background: var(--text); 
             border-radius: 50%; pointer-events: none; z-index: 100; 
-            transform: translate(-50%, -50%); transition: width 0.2s, height 0.2s; 
+            transform: translate(-50%, -50%); transition: width 0.2s, height 0.2s, background-color 0.3s; 
             mix-blend-mode: difference; 
+        }
+
+        /* Master Template Footer Configuration */
+        footer { 
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            border-top: 1px solid var(--border); padding-top: 20px;
+            font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: 1px;
         }
     </style>
 </head>
-<body class="dark-mode"> <div id="ledger">[SYSTEM INITIALIZED] // REPOSITORY DATA ACTIVE</div>
+<body class="dark-mode"> <!-- Defaults to dark mode initialization -->
+
+    <header>
+        <div class="header-top">
+            <div class="title" id="main-name">K.ari.n Schneider</div>
+            <button class="mode-toggle" onclick="toggleMode()">Invert System</button>
+        </div>
+    </header>
+
+    <div id="audio-prompt" onclick="activateSystem()">[ Click to Initialize System Audio Engine ]</div>
+    
+    <div id="ledger-container">
+        <div>[SYSTEM INITIALIZED] // REPOSITORY DATA ACTIVE</div>
+    </div>
+    
     <div id="grid-matrix"></div>
     <div id="orbital-lens"></div>
 
     <script>
         const matrixContainer = document.getElementById('grid-matrix');
         const lens = document.getElementById('orbital-lens');
-        const ledger = document.getElementById('ledger');
+        const ledgerContainer = document.getElementById('ledger-container');
+        
+        let audioCtx = null;
+        let mainOsc = null;
+        let mainGain = null;
+        let humanTrajectory = [];
 
-        // Capture Mouse Movements for the Floating Circle
+        // Track mouse coordinates for tracking circles and sound mapping
         window.addEventListener('mousemove', (e) => {
             lens.style.left = e.clientX + 'px';
             lens.style.top = e.clientY + 'px';
+            
+            if (audioCtx && mainOsc) {
+                const freq = 60 + (e.clientY / window.innerHeight) * 180;
+                mainOsc.frequency.setTargetAtTime(freq, audioCtx.currentTime, 0.05);
+                const volume = 0.01 + (e.clientX / window.innerWidth) * 0.03;
+                mainGain.gain.setTargetAtTime(volume, audioCtx.currentTime, 0.05);
+            }
         });
 
+        function activateSystem() {
+            document.getElementById('audio-prompt').style.display = 'none';
+            
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            mainOsc = audioCtx.createOscillator();
+            mainGain = audioCtx.createGain();
+            
+            mainOsc.type = 'sine'; 
+            mainOsc.frequency.setValueAtTime(110, audioCtx.currentTime);
+            mainGain.gain.setValueAtTime(0.01, audioCtx.currentTime);
+            
+            mainOsc.connect(mainGain);
+            mainGain.connect(audioCtx.destination);
+            mainOsc.start();
+            
+            logTrack('SYSTEM', 'SONIC OSCILLATORS ONLINE');
+            loadRepository();
+        }
+
         async function loadRepository() {
-            // Read directly from your existing data footprint source
+            // Inherits the same data file directly from your system environment
             const response = await fetch('data.vcs');
             const csvText = await response.text();
             const lines = csvText.trim().split('\n').slice(1);
@@ -91,74 +172,126 @@
                 };
             });
 
-            // Map and spawn the layout blocks using asymmetrical grid spans
-            const gridLayouts = [
-                {col: "span 4", row: "span 5"}, {col: "span 5", row: "span 4"},
-                {col: "span 3", row: "span 6"}, {col: "span 5", row: "span 5"},
-                {col: "span 4", row: "span 3"}, {col: "span 3", row: "span 4"},
-                {col: "span 4", row: "span 6"}, {col: "span 5", row: "span 3"}
+            // Clean multi-column structural grid allocations
+            const layouts = [
+                {col: "span 4", row: "span 2"}, {col: "span 5", row: "span 3"},
+                {col: "span 3", row: "span 2"}, {col: "span 5", row: "span 2"},
+                {col: "span 4", row: "span 3"}, {col: "span 3", row: "span 2"},
+                {col: "span 4", row: "span 2"}, {col: "span 5", row: "span 2"},
+                {col: "span 3", row: "span 3"}, {col: "span 6", row: "span 2"},
+                {col: "span 3", row: "span 2"}, {col: "span 3", row: "span 3"}
             ];
 
-            matrixContainer.innerHTML = database.slice(0, 8).map((item, idx) => {
-                const layout = gridLayouts[idx % gridLayouts.length];
-                
-                // Formulate the definitive, clean string match variable
+            matrixContainer.innerHTML = database.slice(0, 12).map((item, idx) => {
+                const layout = layouts[idx % layouts.length];
                 const cleanTitle = item.entry.replace(/[^a-zA-Z0-9]/g, "-");
-                const cleanVenue = item.venue.replace(/[^a-zA-Z0-9]/g, "-");
-                const identityString = `${item.year}_${item.mode.toUpperCase()}_${cleanTitle}_${cleanVenue}`;
-                
-                // Points directly to images inside an images folder named after your titles
+                const identityString = `${item.year}_${item.mode.toUpperCase()}_${cleanTitle}`;
                 const imagePath = `images/${item.year}_${item.mode.toLowerCase()}.jpg`;
 
                 return `
-                    <div class="block" style="grid-column: ${layout.col}; grid-row: ${layout.row};" onclick="mutateSystem()">
+                    <div class="block" style="grid-column: ${layout.col}; grid-row: ${layout.row};" 
+                         data-mode="${item.mode.toLowerCase()}" data-text="${item.entry}" onclick="mutateSystem(this)">
+                        <canvas class="generative-canvas"></canvas>
                         <img src="${imagePath}" class="asset-img" onerror="this.style.display='none';">
                         <div class="identity-label">${identityString}</div>
                     </div>
                 `;
             }).join('');
 
-            attachBlockInteractions();
+            initializeCanvases();
+            attachInteractions();
         }
 
-        function attachBlockInteractions() {
+        function initializeCanvases() {
             document.querySelectorAll('.block').forEach(block => {
+                const canvas = block.querySelector('.generative-canvas');
+                const ctx = canvas.getContext('2d');
+                const textStr = block.getAttribute('data-text');
+                
+                const resizeCanvas = () => {
+                    canvas.width = block.clientWidth;
+                    canvas.height = block.clientHeight;
+                    ctx.fillStyle = "rgba(120, 120, 120, 0.15)";
+                    ctx.font = "9px monospace";
+                    for(let i=0; i<4; i++) {
+                        ctx.fillText(textStr, Math.random() * (canvas.width - 60), Math.random() * canvas.height);
+                    }
+                };
+                resizeCanvas();
+                window.addEventListener('resize', resizeCanvas);
+            });
+        }
+
+        function attachInteractions() {
+            document.querySelectorAll('.block').forEach(block => {
+                const mode = block.getAttribute('data-mode');
+                const label = block.querySelector('.identity-label').innerText;
+
                 block.addEventListener('mouseenter', () => {
-                    lens.style.width = '65px';
-                    lens.style.height = '65px';
-                    const stringText = block.querySelector('.identity-label').innerText;
-                    logTrack('HUMAN_FOCUS', `INDEX DATA READ: ${stringText}`);
+                    if (['film', 'video', 'screening', 'sound'].includes(mode)) {
+                        lens.style.width = '70px'; lens.style.height = '70px';
+                        if(mainOsc) mainOsc.type = 'sawtooth';
+                    } else if (mode === 'code') {
+                        lens.style.width = '12px'; lens.style.height = '12px';
+                        if(mainOsc) mainOsc.type = 'triangle';
+                    } else {
+                        lens.style.width = '45px'; lens.style.height = '45px';
+                        if(mainOsc) mainOsc.type = 'sine';
+                    }
+                    humanTrajectory.push(mode);
+                    logTrack('HUMAN_FOCUS', `READING -> ${label}`);
                 });
+
                 block.addEventListener('mouseleave', () => {
-                    lens.style.width = '40px';
-                    lens.style.height = '40px';
+                    lens.style.width = '30px'; lens.style.height = '30px';
+                    if(mainOsc) mainOsc.type = 'sine';
                 });
             });
         }
 
-        function mutateSystem() {
-            // Scramble the visual constellation placements instantly upon clicking
+        function mutateSystem(clickedBlock) {
             for (let i = matrixContainer.children.length; i >= 0; i--) {
                 matrixContainer.appendChild(matrixContainer.children[Math.random() * i | 0]);
             }
-            logTrack('SYSTEM_MUTATION', 'COORDINATE CODES RE-ALIGNED');
+            if(audioCtx && mainOsc) {
+                const prevFreq = mainOsc.frequency.value;
+                mainOsc.frequency.setValueAtTime(880, audioCtx.currentTime);
+                mainOsc.frequency.exponentialRampToValueAtTime(prevFreq, audioCtx.currentTime + 0.4);
+            }
+            const modeTrack = clickedBlock.getAttribute('data-mode').toUpperCase();
+            logTrack('MUTATION', `OPERATOR CLICK INTERVENTION // FOCUS ON [${modeTrack}]`);
+            logTrack('ATTENTION_LOG', `PATH: ${humanTrajectory.slice(-5).join(' -> ')}`);
         }
 
         function logTrack(agent, detail) {
             const time = new Date().toLocaleTimeString();
-            ledger.innerHTML = `[${time}] // ${agent} // ${detail}`;
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `[${time}] // ${agent} // ${detail}`;
+            ledgerContainer.appendChild(logEntry);
+            if (ledgerContainer.children.length > 4) {
+                ledgerContainer.removeChild(ledgerContainer.firstChild);
+            }
         }
 
-        // Simulate Background Crawler Traffic detection to flag interaction differences
-        setInterval(() => {
-            if(Math.random() > 0.7) {
-                const time = new Date().toLocaleTimeString();
-                ledger.innerHTML = `[${time}] // AI_CRAWL_DETECTED // INDEX_SCRAMBLE // COORDINATES ALTERED`;
-                mutateSystem();
+        // Exact dual-mode name-shifting logic from your footprint design
+        function toggleMode() { 
+            document.body.classList.toggle('dark-mode');
+            const titleElement = document.getElementById('main-name');
+            if (document.body.classList.contains('dark-mode')) {
+                titleElement.innerText = "K.ari.n Schneider";
+            } else {
+                titleElement.innerText = "KARIN SCHNEIDER";
             }
-        }, 9000);
+            logTrack('SYSTEM', 'VISUAL INVERSION TRIGGERED');
+        }
 
-        loadRepository();
+        // Auto-run system sequence if user interactions have already been authorized
+        if (location.hash === '#active') activateSystem();
     </script>
+
+    <footer>
+        #K.ari.n Schneider 2026 &copy; karinschneider.com
+    </footer>
+
 </body>
 </html>
