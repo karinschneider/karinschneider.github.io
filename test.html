@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K.ARIN SCHNEIDER // TEST</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: #000; color: #fff; font-family: monospace; overflow: hidden; height: 100vh; position: relative; }
+        
+        /* The Ledger Stream */
+        #ledger { position: absolute; top: 20px; left: 20px; width: 320px; font-size: 10px; line-height: 1.4; color: #666; z-index: 10; pointer-events: none; }
+        .log-human { color: #aaa; }
+        .log-ai { color: #555; }
+
+        /* The Interlocking Grid Matrix */
+        #grid-container { display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: repeat(12, 1fr); width: 100vw; height: 100vh; padding: 10px; gap: 10px; }
+        .block { background: #111; border: 2px solid #000; position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; transition: background 0.3s, border-color 0.3s; overflow: hidden; }
+        .block:hover { border-color: #333; }
+        
+        /* Simulated Image Fill */
+        .image-placeholder { width: 90%; height: 80%; background: #222; display: flex; justify-content: center; align-items: center; color: #444; font-size: 11px; transition: background 0.2s; }
+        .block:hover .image-placeholder { background: #2a2a2a; color: #fff; }
+        
+        /* Rigid Asset Label String */
+        .asset-string { position: absolute; bottom: 8px; left: 10px; font-size: 10px; color: #555; opacity: 0; transition: opacity 0.2s; white-space: nowrap; }
+        .block.revealed .asset-string { opacity: 1; color: #fff; }
+
+        /* The Single Floating Circle Orbiter */
+        #floating-circle { position: fixed; width: 40px; height: 40px; background: #fff; border-radius: 50%; pointer-events: none; z-index: 100; transform: translate(-50%, -50%); transition: width 0.2s, height 0.2s, background 0.2s; mix-blend-mode: difference; }
+    </style>
+</head>
+<body>
+
+    <div id="ledger">
+        [SYSTEM_LOG // INITIALIZED]<br>
+        READY FOR HUMAN OR AI TRAFFIC...
+    </div>
+
+    <div id="grid-container">
+        <!-- 10 interlocking layout boxes mapping to your sketch -->
+        <div class="block" style="grid-column: span 3; grid-row: span 4;" data-identity="2011_F(-)P_Andrew Roth Gallery">
+            <div class="image-placeholder">[IMAGE_ASSET]</div><div class="asset-string"></div>
+        </div>
+        <div class="block" style="grid-column: span 5; grid-row: span 5;" data-identity="2026_Folding_Muzeum Sztuki">
+            <div class="image-placeholder">[IMAGE_ASSET]</div><div class="asset-string"></div>
+        </div>
+        <div class="block" style="grid-column: span 4; grid-row: span 6;" data-identity="2025_MAR 01_Casarao">
+            <div class="image-placeholder">[IMAGE_ASSET]</div><div class="asset-string"></div>
+        </div>
+        <div class="block" style="grid-column: span 3; grid-row: span 5;" data-identity="2024_Repara ai mana!_Casa das Onze Janelas">
+            <div class="image-placeholder">[IMAGE_ASSET]</div><div class="asset-string"></div>
+        </div>
+        <div class="block" style="grid-column: span 5; grid-row: span 4;" data-identity="2023_The Night of Torch_Louvre Museum">
+            <div class="image-placeholder">[IMAGE_ASSET]</div><div class="asset-string"></div>
+        </div>
+        <div class="block" style="grid-column: span 4; grid-row: span 6;" data-identity="2023_Speaking Boxes_SIMIAN">
+            <div class="image-placeholder">[IMAGE_ASSET]</div><div class="asset-string"></div>
+        </div>
+        <div class="block" style="grid-column: span 4; grid-row: span 3;" data-identity="2022_Sembrando el Petroleo_ISLAA">
+            <div class="image-placeholder">[IMAGE_ASSET]</div><div class="asset-string"></div>
+        </div>
+        <div class="block" style="grid-column: span 4; grid-row: span 3;" data-identity="2020_Dirty Mirror_Metro Pictures">
+            <div class="image-placeholder">[IMAGE_ASSET]</div><div class="asset-string"></div>
+        </div>
+    </div>
+
+    <div id="floating-circle"></div>
+
+    <script>
+        const circle = document.getElementById('floating-circle');
+        const ledger = document.getElementById('ledger');
+        const blocks = document.querySelectorAll('.block');
+        
+        // Track mouse to make the single circle float seamlessly
+        window.addEventListener('mousemove', (e) => {
+            circle.style.left = e.clientX + 'px';
+            circle.style.top = e.clientY + 'px';
+        });
+
+        // Human interaction: Hover reveals string and logs interaction
+        blocks.forEach(block => {
+            const stringDiv = block.querySelector('.asset-string');
+            const dataText = block.getAttribute('data-identity');
+            stringDiv.textContent = dataText;
+
+            block.addEventListener('mouseenter', () => {
+                block.classList.add('revealed');
+                circle.style.width = '60px';
+                circle.style.height = '60px';
+                logInteraction('HUMAN_FOCUS', `LENS OVER: ${dataText.split('_')[1]}`);
+            });
+
+            block.addEventListener('mouseleave', () => {
+                block.classList.remove('revealed');
+                circle.style.width = '40px';
+                circle.style.height = '40px';
+            });
+
+            // Click triggers location reshuffling mutation simulation
+            block.addEventListener('click', () => {
+                shuffleGrid();
+                logInteraction('HUMAN_MUTATION', 'GRID COORDINATES SCRAMBLED');
+            });
+        });
+
+        function shuffleGrid() {
+            const container = document.getElementById('grid-container');
+            for (let i = container.children.length; i >= 0; i--) {
+                container.appendChild(container.children[Math.random() * i | 0]);
+            }
+        }
+
+        function logInteraction(type, detail) {
+            const now = new Date().toLocaleTimeString();
+            const newLog = document.createElement('div');
+            newLog.className = 'log-human';
+            newLog.innerHTML = `[${now}] // ${type} // ${detail}`;
+            ledger.insertBefore(newLog, ledger.firstChild);
+        }
+
+        // Simulate an AI web crawler interaction on launch to demonstrate difference
+        setTimeout(() => {
+            const now = new Date().toLocaleTimeString();
+            const aiLog = document.createElement('div');
+            aiLog.className = 'log-ai';
+            aiLog.innerHTML = `[${now}] // AI_CRAWL_DETECTED // BOT_SIGNATURE: GOOGLEBOT // ENCRYPTING MATRIX COORDINATES`;
+            ledger.insertBefore(aiLog, ledger.firstChild);
+        }, 2000);
+    </script>
+</body>
+</html>
