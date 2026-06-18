@@ -143,13 +143,24 @@
         
         .generative-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2; }
         
-        /* FIX #4: prevent label text truncation — allow wrapping instead */
+        /* Block label — matches footprint table typographic system */
         .identity-label { 
-            position: relative; font-size: 10px; font-weight: bold; 
-            letter-spacing: 0.05em; background: var(--bg); color: var(--text);
-            padding: 4px 8px; display: inline-block; max-width: 100%;
-            white-space: normal; overflow: visible; word-break: break-word;
+            position: relative;
+            background: var(--bg); color: var(--text);
+            padding: 5px 8px; display: block; max-width: 100%;
             border: 1px solid var(--text); z-index: 5; margin-top: auto;
+            line-height: 1.4;
+        }
+        .identity-label .lbl-year {
+            font-size: 11px; font-weight: bold; display: block;
+        }
+        .identity-label .lbl-mode {
+            font-size: 10px; text-transform: uppercase; color: var(--accent);
+            letter-spacing: 0.05em; display: block;
+        }
+        .identity-label .lbl-entry {
+            font-size: 12px; font-weight: bold; display: block;
+            word-break: break-word; white-space: normal;
         }
  
         /* FLOATING ARTWORK PANELS */
@@ -160,7 +171,7 @@
         .artwork-float {
             position: absolute; pointer-events: auto;
             border: 1px solid var(--text); background: var(--bg);
-            width: 384px; max-width: 90vw;
+            width: 560px; max-width: 80vw;
             box-shadow: 0 6px 24px rgba(0,0,0,0.4);
             animation: artwork-in 0.25s ease;
         }
@@ -173,8 +184,11 @@
             letter-spacing: 0.1em; text-transform: uppercase;
             padding: 5px 8px; border-bottom: 1px solid var(--text);
             color: var(--accent); display: flex; justify-content: space-between;
-            align-items: center; cursor: grab; user-select: none;
-            background: var(--bg);
+            align-items: flex-start; cursor: grab; user-select: none;
+            background: var(--bg); gap: 8px;
+        }
+        .artwork-float-header span:first-child {
+            white-space: normal; word-break: break-word; line-height: 1.5;
         }
         .artwork-float-header:active { cursor: grabbing; }
         .artwork-float-close {
@@ -226,6 +240,17 @@
             transition: width 0.07s, background 0.3s;
         }
 
+        /* ── FILTER BUTTONS — matches footprint page exactly ── */
+        .controls { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
+        .filter-btn {
+            border: 1px solid var(--text); background: none; padding: 4px 12px;
+            cursor: pointer; font-size: 11px; text-transform: uppercase;
+            font-weight: 500; color: var(--text); transition: all 0.2s;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+        .filter-btn:hover { background: var(--text); color: var(--bg); }
+        .filter-btn.active { background: var(--text); color: var(--bg); }
+
         /* FIX #6: Footer */
         footer {
             font-family: "Courier New", Courier, monospace;
@@ -251,6 +276,9 @@
         <div class="header-top">
             <div class="title" id="main-name">K.ari.n Schneider</div>
             <button class="mode-toggle" onclick="toggleMode()">Invert System</button>
+        </div>
+        <div class="controls" id="nav-filters">
+            <!-- populated by JS after data loads -->
         </div>
     </header>
  
@@ -758,7 +786,8 @@ const openArtworkPanels = new Map();
 function openArtwork(block) {
     const idx = block.getAttribute('data-idx');
     const src = block.getAttribute('data-artwork');
-    const label = block.querySelector('.identity-label') ? block.querySelector('.identity-label').innerText : '';
+    /* Panel header shows full CSV info; block shows year/mode/entry separately */
+    const label = block.getAttribute('data-fullinfo') || block.getAttribute('data-text') || '';
 
     const probe = new Image();
     probe.onerror = () => {
@@ -782,8 +811,25 @@ function closeArtworkPanel(idx) {
 function spawnArtworkPanel(idx, block, src, label) {
     const layer = document.getElementById('artwork-layer');
     const rect  = block.getBoundingClientRect();
-    const top   = window.scrollY + rect.top;
-    const left  = window.scrollX + rect.left;
+    const PANEL_W = 560;
+    const GAP = 16;
+
+    /* Horizontal: prefer right of block, fall back to left, clamp to viewport */
+    let left;
+    if (rect.right + GAP + PANEL_W <= window.innerWidth) {
+        left = window.scrollX + rect.right + GAP;
+    } else if (rect.left - GAP - PANEL_W >= 0) {
+        left = window.scrollX + rect.left - GAP - PANEL_W;
+    } else {
+        /* Not enough room either side — center horizontally */
+        left = window.scrollX + Math.max(8, (window.innerWidth - PANEL_W) / 2);
+    }
+
+    /* Vertical: align with block top, but clamp so panel doesn't go below viewport */
+    let top = window.scrollY + rect.top;
+    const maxTop = window.scrollY + window.innerHeight - 100; /* leave at least 100px visible */
+    top = Math.min(top, maxTop);
+    top = Math.max(top, window.scrollY + 8);
 
     const panel = document.createElement('div');
     panel.className = 'artwork-float';
@@ -812,21 +858,20 @@ function spawnArtworkPanel(idx, block, src, label) {
 
     makePanelDraggable(panel, panel.querySelector('.artwork-float-header'));
 
-    const ensureVisible = () => {
-        const panelRect = panel.getBoundingClientRect();
-        const fitsInView = panelRect.top >= 0 && panelRect.bottom <= window.innerHeight;
-        if (!fitsInView) {
-            panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    /* Once image loads, re-clamp vertically in case panel is taller than expected */
+    const imgEl2 = panel.querySelector('img');
+    const clampVertical = () => {
+        const pr = panel.getBoundingClientRect();
+        if (pr.bottom > window.innerHeight - 8) {
+            const overflow = pr.bottom - (window.innerHeight - 8);
+            panel.style.top = (parseFloat(panel.style.top) - overflow) + 'px';
         }
+        sampleDominantSaturation(imgEl2);
     };
-    if (imgEl.complete) {
-        ensureVisible();
-        sampleDominantSaturation(imgEl);
+    if (imgEl2.complete) {
+        clampVertical();
     } else {
-        imgEl.addEventListener('load', () => {
-            ensureVisible();
-            sampleDominantSaturation(imgEl);
-        });
+        imgEl2.addEventListener('load', clampVertical);
     }
 }
 
@@ -1013,9 +1058,11 @@ async function loadRepository() {
         }
  
         const cleanTitle     = item.entry.replace(/[^a-zA-Z0-9]/g, "-");
-        /* FIX #2: Label shows specific mode (e.g. "video", "16 mm", "press"),
-           not the generic filterClass */
+        /* Block label: year_MODE_entry (short, 3 columns only) */
         const identityString = `${item.year}_${displayMode.toUpperCase()}_${cleanTitle}`;
+        /* Full info for panel header: all 6 columns joined with · */
+        const fullInfo = [item.year, item.mode, item.entry, item.context, item.venue, item.location]
+            .filter(Boolean).join(' · ');
         const imagePath      = `images/${item.year}_${fileCategory}.jpg`;
         const safeYear       = item.year.replace(/[^a-zA-Z0-9]/g, "-");
         const artworkPath    = `images/${safeYear}_${fileCategory.toUpperCase()}_${cleanTitle}.jpg`;
@@ -1024,11 +1071,16 @@ async function loadRepository() {
             <div class="block" id="block-${idx}"
                  style="grid-column:${layout.col};grid-row:${layout.row}"
                  data-mode="${fileCategory}" data-text="${item.entry.replace(/"/g,"'")}"
+                 data-fullinfo="${fullInfo.replace(/"/g,"'")}"
                  data-artwork="${artworkPath}" data-idx="${idx}"
                  onclick="mutateSystem(this)">
                 <canvas class="generative-canvas"></canvas>
                 <img src="${imagePath}" class="asset-img" onload="this.classList.add('revealed')" onerror="this.style.display='none';">
-                <div class="identity-label">${identityString}</div>
+                <div class="identity-label">
+                    <span class="lbl-year">${item.year}</span>
+                    <span class="lbl-mode">${displayMode}</span>
+                    <span class="lbl-entry">${item.entry}</span>
+                </div>
             </div>
         `;
     }).join('');
@@ -1037,6 +1089,17 @@ async function loadRepository() {
     initializePolyphonicMatrix();
     attachInteractions();
     harvestAuthenticLedger();
+
+    /* Build filter nav — same categories and order as footprint page */
+    const categories = ["code", "time-based_media", "shows", "writing", "collection", "founding"];
+    const categoryLabels = { "code":"CODE", "time-based_media":"TIME-BASED MEDIA", "shows":"SHOWS", "writing":"WRITING", "collection":"COLLECTION", "founding":"FOUNDING" };
+    const nav = document.getElementById('nav-filters');
+    nav.innerHTML = `<button class="filter-btn active" onclick="filterGrid('all')">SELECTED</button>`;
+    categories.forEach(cat => {
+        nav.innerHTML += `<button class="filter-btn" onclick="filterGrid('${cat}')">${categoryLabels[cat]}</button>`;
+    });
+    nav.innerHTML += `<button class="filter-btn" onclick="filterGrid('plus')">+</button>`;
+
     logTrack('VCS', `REPOSITORY LOADED — ${database.length} ENTRIES`);
 }
  
@@ -1065,7 +1128,7 @@ function initializeCanvases() {
 function attachInteractions() {
     document.querySelectorAll('.block').forEach(block => {
         const mode  = block.getAttribute('data-mode');
-        const label = block.querySelector('.identity-label').innerText;
+        const label = block.getAttribute('data-fullinfo') || block.getAttribute('data-text') || '';
  
         block.addEventListener('mouseenter', () => {
             if      (mode === 'time-based_media') { lens.style.width = '70px'; lens.style.height = '70px'; }
@@ -1139,6 +1202,22 @@ function logTrack(agent, detail, style) {
     if (ledgerContainer.children.length > 5) ledgerContainer.removeChild(ledgerContainer.firstChild);
 }
  
+/* ════════════════════════ FILTER — matches footprint page ════════════════════════ */
+function filterGrid(type) {
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        const t = btn.innerText.trim();
+        const isAll  = type === 'all' && t === 'SELECTED';
+        const isPlus = type === 'plus' && t === '+';
+        const isMatch = t.toLowerCase().replace(/[\s-]/g,'_') === type.toLowerCase().replace(/[\s-]/g,'_');
+        btn.classList.toggle('active', isAll || isMatch || isPlus);
+    });
+    document.querySelectorAll('.block').forEach(block => {
+        const mode = block.getAttribute('data-mode');
+        const show = type === 'all' || mode === type;
+        block.style.display = show ? '' : 'none';
+    });
+}
+
 /* FIX #5: toggleMode — orbital lens turns black on white background */
 function toggleMode() {
     document.body.classList.toggle('dark-mode');
